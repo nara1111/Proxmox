@@ -18,6 +18,10 @@ $STD apt-get install -y curl
 $STD apt-get install -y sudo
 $STD apt-get install -y mc
 $STD apt-get install -y gnupg
+#$STD apt-get install -y gnupg
+#$STD apt-get install -y postgresql-common
+#$STD apt-get install -y apt-transport-https
+$STD apt-get install -y lsb-release
 msg_ok "Installed Dependencies"
 
 msg_info "Setting up PostgreSQL Repository"
@@ -26,9 +30,15 @@ echo "deb http://apt.postgresql.org/pub/repos/apt ${VERSION}-pgdg main" >/etc/ap
 curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor --output /etc/apt/trusted.gpg.d/postgresql.gpg
 msg_ok "Setup PostgreSQL Repository"
 
-msg_info "Installing PostgreSQL"
+msg_info "Setting up TimescaleDB Repository"
 $STD apt-get update
-$STD apt-get install -y postgresql
+echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/timescaledb.list
+wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
+msg_ok "Setup TimescaleDB Repository"
+
+msg_info "Installing TimescaleDB"
+$STD apt-get update
+$STD apt-get install -y timescaledb-2-postgresql-14
 
 cat <<EOF >/etc/postgresql/16/main/pg_hba.conf
 # PostgreSQL Client Authentication Configuration File
@@ -131,7 +141,7 @@ include_dir = 'conf.d'
 EOF
 
 sudo systemctl restart postgresql
-msg_ok "Installed PostgreSQL"
+msg_ok "Installed TimescaleDB"
 
 read -r -p "Would you like to add Adminer? <y/N> " prompt
 if [[ "${prompt,,}" =~ ^(y|yes)$ ]]; then

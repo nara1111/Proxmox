@@ -8,20 +8,19 @@ source <(curl -s https://raw.githubusercontent.com/tteck/Proxmox/main/misc/build
 function header_info {
 clear
 cat <<"EOF"
-    ____                                      _____                 
-   / __ \____ ____  ____ ___  ____  ____     / ___/__  ______  _____
-  / / / / __  / _ \/ __  __ \/ __ \/ __ \    \__ \/ / / / __ \/ ___/
- / /_/ / /_/ /  __/ / / / / / /_/ / / / /   ___/ / /_/ / / / / /__  
-/_____/\__,_/\___/_/ /_/ /_/\____/_/ /_/   /____/\__, /_/ /_/\___/  
-                                                /____/              
+  _______                                __     ____  ____
+ /_  __(_)___ ___  ___  ______________ _/ /__  / __ \/ __ )
+  / / / / __ `__ \/ _ \/ ___/ ___/ __ `/ / _ \/ / / / __  |
+ / / / / / / / / /  __(__  ) /__/ /_/ / /  __/ /_/ / /_/ /
+/_/ /_/_/ /_/ /_/\___/____/\___/\__,_/_/\___/_____/_____/
 EOF
 }
 header_info
 echo -e "Loading..."
-APP="Daemon Sync"
-var_disk="8"
+APP="TimescaleDB"
+var_disk="4"
 var_cpu="1"
-var_ram="512"
+var_ram="1024"
 var_os="debian"
 var_version="12"
 variables
@@ -54,11 +53,11 @@ function default_settings() {
 
 function update_script() {
 header_info
-if [[ ! -d /var ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
-msg_info "Updating $APP LXC"
+if [[ ! -f /etc/apt/sources.list.d/pgdg.list ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
+msg_info "Updating ${APP} LXC"
 apt-get update &>/dev/null
 apt-get -y upgrade &>/dev/null
-msg_ok "Updated $APP LXC"
+msg_ok "Updated Successfully"
 exit
 }
 
@@ -67,5 +66,3 @@ build_container
 description
 
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} should be reachable by going to the following URL.
-         ${BL}http://${IP}:8084${CL} \n"
